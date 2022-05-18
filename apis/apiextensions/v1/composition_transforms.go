@@ -55,6 +55,7 @@ type TransformType string
 const (
 	TransformTypeMap     TransformType = "map"
 	TransformTypeMath    TransformType = "math"
+	TransformTypeRegex   TransformType = "regex"
 	TransformTypeString  TransformType = "string"
 	TransformTypeConvert TransformType = "convert"
 )
