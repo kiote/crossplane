@@ -229,7 +229,7 @@ type StringTransform struct {
 }
 
 // A RegexTransform returns a string given the supplied input.
-type RegextTransform struct {
+type RegexTransform struct {
 
 	// Type of the string transform to be run.
 	// +optional
