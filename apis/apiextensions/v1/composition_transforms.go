@@ -82,6 +82,11 @@ type Transform struct {
 	// +optional
 	String *StringTransform `json:"string,omitempty"`
 
+	// Regex is used to transform the input into a different kind of string.
+	// Input needs to be a string.
+	// +optional
+	Regex *RegexTransform `json:"regex,omitempty"`
+
 	// Convert is used to cast the input into the given output type.
 	// +optional
 	Convert *ConvertTransform `json:"convert,omitempty"`
@@ -201,6 +206,30 @@ const (
 
 // A StringTransform returns a string given the supplied input.
 type StringTransform struct {
+
+	// Type of the string transform to be run.
+	// +optional
+	// +kubebuilder:validation:Enum=Format;Convert;TrimPrefix;TrimSuffix
+	// +kubebuilder:default=Format
+	Type StringTransformType `json:"type,omitempty"`
+
+	// Format the input using a Go format string. See
+	// https://golang.org/pkg/fmt/ for details.
+	// +optional
+	Format *string `json:"fmt,omitempty"`
+
+	// Convert the type of conversion to Upper/Lower case.
+	// +optional
+	// +kubebuilder:validation:Enum=ToUpper;ToLower;ToBase64;FromBase64
+	Convert *StringConversionType `json:"convert,omitempty"`
+
+	// Trim the prefix or suffix from the input
+	// +optional
+	Trim *string `json:"trim,omitempty"`
+}
+
+// A RegexTransform returns a string given the supplied input.
+type RegextTransform struct {
 
 	// Type of the string transform to be run.
 	// +optional
