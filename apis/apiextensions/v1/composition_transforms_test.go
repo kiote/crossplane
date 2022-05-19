@@ -349,7 +349,7 @@ func TestRegexResolve(t *testing.T) {
 		err error
 	}
 
-	var emptyRegex, wrongRegex = "", "[a-z"
+	var emptyRegex, wrongRegex, goodRegex = "", "[a-z", "[0-9]"
 
 	cases := map[string]struct {
 		args
@@ -382,6 +382,36 @@ func TestRegexResolve(t *testing.T) {
 			want: want{
 				o:   nil,
 				err: errors.Errorf(errRegexCantCompile, "error parsing regexp: missing closing ]: `[a-z`"),
+			},
+		},
+		"GoodRegexNoResult": {
+			args: args{
+				regexp: &goodRegex,
+				i:      "value",
+			},
+			want: want{
+				o:   []uint8(nil),
+				err: nil,
+			},
+		},
+		"GoodRegexOneMatch": {
+			args: args{
+				regexp: &goodRegex,
+				i:      "value1d",
+			},
+			want: want{
+				o:   []uint8("1"),
+				err: nil,
+			},
+		},
+		"GoodRegexSeveralMatches": {
+			args: args{
+				regexp: &goodRegex,
+				i:      "value0d1c5",
+			},
+			want: want{
+				o:   []uint8("0"),
+				err: nil,
 			},
 		},
 	}

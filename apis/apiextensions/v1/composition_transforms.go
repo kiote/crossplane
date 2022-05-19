@@ -303,13 +303,16 @@ func (s *RegexTransform) Resolve(input interface{}) (interface{}, error) {
 		return nil, errors.New(errRegexEmpty)
 	}
 
-	_, err := regexp.Compile(*s.Regex)
+	re, err := regexp.Compile(*s.Regex)
 
 	if err != nil {
 		return nil, errors.Errorf(errRegexCantCompile, err.Error())
 	}
 
-	return nil, nil
+	str := fmt.Sprintf("%v", input)
+	result := re.Find([]byte(str))
+
+	return result, nil
 }
 
 // The list of supported ConvertTransform input and output types.
