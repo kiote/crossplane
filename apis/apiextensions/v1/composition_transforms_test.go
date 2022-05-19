@@ -338,6 +338,45 @@ func TestStringResolve(t *testing.T) {
 	}
 }
 
+func TestRegexResolve(t *testing.T) {
+
+	type args struct {
+		regexp *string
+		i      interface{}
+	}
+	type want struct {
+		o   interface{}
+		err error
+	}
+
+	cases := map[string]struct {
+		args
+		want
+	}{
+		"NoRegexProvided": {
+			args: args{
+				regexp: nil,
+				i:      "value",
+			},
+			want: want{
+				err: errors.New(errRegexNoRegex),
+			},
+		},
+	}
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			got, err := (&RegexTransform{Regex: tc.args.regexp}).Resolve(tc.i)
+
+			if diff := cmp.Diff(tc.want.o, got); diff != "" {
+				t.Errorf("Resolve(b): -want, +got:\n%s", diff)
+			}
+			if diff := cmp.Diff(tc.want.err, err, test.EquateErrors()); diff != "" {
+				t.Errorf("Resolve(b): -want, +got:\n%s", diff)
+			}
+		})
+	}
+}
+
 func TestConvertResolve(t *testing.T) {
 	type args struct {
 		ot string

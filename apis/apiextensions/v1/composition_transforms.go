@@ -46,6 +46,9 @@ const (
 	errStringTransformTypeTrim    = "string transform of type %s trim is not set"
 	errStringConvertTypeFailed    = "type %s is not supported for string convert"
 	errDecodeString               = "string is not valid base64"
+
+	errRegexNoRegex = "no regex provided"
+	errRegexEmpty   = "regex is empty"
 )
 
 // TransformType is type of the transform function to be chosen.
@@ -228,30 +231,6 @@ type StringTransform struct {
 	Trim *string `json:"trim,omitempty"`
 }
 
-// A RegexTransform returns a string given the supplied input.
-type RegexTransform struct {
-
-	// Type of the string transform to be run.
-	// +optional
-	// +kubebuilder:validation:Enum=Format;Convert;TrimPrefix;TrimSuffix
-	// +kubebuilder:default=Format
-	Type StringTransformType `json:"type,omitempty"`
-
-	// Format the input using a Go format string. See
-	// https://golang.org/pkg/fmt/ for details.
-	// +optional
-	Format *string `json:"fmt,omitempty"`
-
-	// Convert the type of conversion to Upper/Lower case.
-	// +optional
-	// +kubebuilder:validation:Enum=ToUpper;ToLower;ToBase64;FromBase64
-	Convert *StringConversionType `json:"convert,omitempty"`
-
-	// Trim the prefix or suffix from the input
-	// +optional
-	Trim *string `json:"trim,omitempty"`
-}
-
 // Resolve runs the String transform.
 func (s *StringTransform) Resolve(input interface{}) (interface{}, error) {
 
@@ -303,6 +282,25 @@ func stringTrimTransform(input interface{}, t StringTransformType, trim string) 
 		return strings.TrimSuffix(str, trim)
 	}
 	return str
+}
+
+// A RegexTransform returns a string given the supplied input.
+type RegexTransform struct {
+	// Regex expression to be applied.
+	// https://pkg.go.dev/regexp/ for details.
+	// +optional
+	Regex *string `json:"regex,omitempty"`
+}
+
+// Resolve runs the String transform.
+func (s *RegexTransform) Resolve(input interface{}) (interface{}, error) {
+	if s.Regex == nil {
+		return nil, errors.New(errRegexNoRegex)
+	}
+	if *s.Regex == "" {
+		return nil, errors.New(errRegexEmpty)
+	}
+	return nil, nil
 }
 
 // The list of supported ConvertTransform input and output types.
