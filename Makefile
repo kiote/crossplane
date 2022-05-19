@@ -68,6 +68,7 @@ SOURCE_DOCS_DIR = docs
 DEST_DOCS_DIR = docs
 DOCS_GIT_REPO = https://$(DOCS_GIT_USR):$(DOCS_GIT_PSW)@github.com/crossplane/crossplane.github.io.git
 -include build/makelib/docs.mk
+-include build/makelib/local.mk
 
 # ====================================================================================
 # Targets

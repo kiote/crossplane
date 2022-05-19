@@ -111,6 +111,8 @@ func (t *Transform) Transform(input interface{}) (interface{}, error) {
 		transformer = t.String
 	case TransformTypeConvert:
 		transformer = t.Convert
+	case TransformTypeRegex:
+		transformer = t.Regex
 	default:
 		return nil, errors.Errorf(errFmtTypeNotSupported, string(t.Type))
 	}
