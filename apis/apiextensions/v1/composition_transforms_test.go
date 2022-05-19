@@ -349,6 +349,8 @@ func TestRegexResolve(t *testing.T) {
 		err error
 	}
 
+	var emptyRegex = ""
+
 	cases := map[string]struct {
 		args
 		want
@@ -360,6 +362,15 @@ func TestRegexResolve(t *testing.T) {
 			},
 			want: want{
 				err: errors.New(errRegexNoRegex),
+			},
+		},
+		"EmptyRegexProvided": {
+			args: args{
+				regexp: &emptyRegex,
+				i:      "value",
+			},
+			want: want{
+				err: errors.New(errRegexEmpty),
 			},
 		},
 	}
