@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -47,8 +48,9 @@ const (
 	errStringConvertTypeFailed    = "type %s is not supported for string convert"
 	errDecodeString               = "string is not valid base64"
 
-	errRegexNoRegex = "no regex provided"
-	errRegexEmpty   = "regex is empty"
+	errRegexNoRegex     = "no regex provided"
+	errRegexEmpty       = "regex is empty"
+	errRegexCantCompile = "%s"
 )
 
 // TransformType is type of the transform function to be chosen.
@@ -300,6 +302,13 @@ func (s *RegexTransform) Resolve(input interface{}) (interface{}, error) {
 	if *s.Regex == "" {
 		return nil, errors.New(errRegexEmpty)
 	}
+
+	_, err := regexp.Compile(*s.Regex)
+
+	if err != nil {
+		return nil, errors.Errorf(errRegexCantCompile, err.Error())
+	}
+
 	return nil, nil
 }
 

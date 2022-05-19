@@ -349,7 +349,7 @@ func TestRegexResolve(t *testing.T) {
 		err error
 	}
 
-	var emptyRegex = ""
+	var emptyRegex, wrongRegex = "", "[a-z"
 
 	cases := map[string]struct {
 		args
@@ -370,7 +370,18 @@ func TestRegexResolve(t *testing.T) {
 				i:      "value",
 			},
 			want: want{
+				o:   nil,
 				err: errors.New(errRegexEmpty),
+			},
+		},
+		"WrongRegexProvided": {
+			args: args{
+				regexp: &wrongRegex,
+				i:      "value",
+			},
+			want: want{
+				o:   nil,
+				err: errors.Errorf(errRegexCantCompile, "error parsing regexp: missing closing ]: `[a-z`"),
 			},
 		},
 	}
