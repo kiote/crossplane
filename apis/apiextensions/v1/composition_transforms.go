@@ -46,11 +46,10 @@ const (
 	errStringTransformTypeConvert = "string transform of type %s convert is not set"
 	errStringTransformTypeTrim    = "string transform of type %s trim is not set"
 	errStringConvertTypeFailed    = "type %s is not supported for string convert"
+	errStringNoRegexp             = "no regexp provided for string"
+	errStringEmptyRegexp          = "regexp is empty"
+	errStringCantCompileRegexp    = "can not compile"
 	errDecodeString               = "string is not valid base64"
-
-	errRegexNoRegex     = "no regex provided"
-	errRegexEmpty       = "regex is empty"
-	errRegexCantCompile = "%s"
 )
 
 // TransformType is type of the transform function to be chosen.
@@ -198,6 +197,7 @@ const (
 	StringTransformConvert    StringTransformType = "Convert"
 	StringTransformTrimPrefix StringTransformType = "TrimPrefix"
 	StringTransformTrimSuffix StringTransformType = "TrimSuffix"
+	StringTransformRegexp     StringTransformType = "Regexp"
 )
 
 // StringConversionType is the type of string conversion, ToUpper/ToLower/ToBase64/FromBase64
@@ -216,7 +216,7 @@ type StringTransform struct {
 
 	// Type of the string transform to be run.
 	// +optional
-	// +kubebuilder:validation:Enum=Format;Convert;TrimPrefix;TrimSuffix
+	// +kubebuilder:validation:Enum=Format;Convert;TrimPrefix;TrimSuffix;Regexp
 	// +kubebuilder:default=Format
 	Type StringTransformType `json:"type,omitempty"`
 
@@ -233,6 +233,10 @@ type StringTransform struct {
 	// Trim the prefix or suffix from the input
 	// +optional
 	Trim *string `json:"trim,omitempty"`
+
+	// Apply regexp on the input
+	// +optional
+	Regexp *string `json:"regexp,omitempty"`
 }
 
 // Resolve runs the String transform.
@@ -255,6 +259,14 @@ func (s *StringTransform) Resolve(input interface{}) (interface{}, error) {
 			return nil, errors.Errorf(errStringTransformTypeTrim, string(s.Type))
 		}
 		return stringTrimTransform(input, s.Type, *s.Trim), nil
+	case StringTransformRegexp:
+		if s.Regexp == nil {
+			return nil, errors.New(errStringNoRegexp)
+		}
+		if *s.Regexp == "" {
+			return nil, errors.New(errStringEmptyRegexp)
+		}
+		return stringConvertRegexp(input, s.Regexp)
 	default:
 		return nil, errors.Errorf(errStringTransformTypeFailed, string(s.Type))
 	}
@@ -288,24 +300,9 @@ func stringTrimTransform(input interface{}, t StringTransformType, trim string) 
 	return str
 }
 
-// A RegexTransform returns a string given the supplied input.
-type RegexTransform struct {
-	// Regex expression to be applied.
-	// https://pkg.go.dev/regexp/ for details.
-	// +optional
-	Regex *string `json:"regex,omitempty"`
-}
-
 // Resolve runs the String transform.
-func (s *RegexTransform) Resolve(input interface{}) (interface{}, error) {
-	if s.Regex == nil {
-		return nil, errors.New(errRegexNoRegex)
-	}
-	if *s.Regex == "" {
-		return nil, errors.New(errRegexEmpty)
-	}
-
-	re, err := regexp.Compile(*s.Regex)
+func stringConvertRegexp(input interface{}, t *StringTransformType) (interface{}, error) {
+	re, err := regexp.Compile(*t.Regex)
 
 	if err != nil {
 		return nil, errors.Errorf(errRegexCantCompile, err.Error())
